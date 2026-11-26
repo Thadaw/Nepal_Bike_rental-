@@ -1,4 +1,7 @@
 .vite/
+.agents/
+.claude/
+.windsurf/
 node_modules/
 dist/
 coverage/
