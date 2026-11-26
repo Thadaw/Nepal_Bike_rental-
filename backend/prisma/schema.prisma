@@ -1,0 +1,183 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VehicleCategory {
+  scooty
+  motorcycle
+  car
+  jeep
+}
+
+enum TripType {
+  city
+  adventure
+}
+
+enum BookingStatus {
+  new
+  confirmed
+  declined
+  completed
+}
+
+enum BookingSource {
+  website
+  whatsapp
+}
+
+enum PaymentStatus {
+  unpaid
+  partially_paid
+  paid
+}
+
+enum PaymentMethod {
+  cash
+  bank_transfer
+  qr
+  other
+}
+
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Vehicle {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  name              String
+  brand             String?
+  modelYear         Int?
+  category          VehicleCategory
+  tagline           String
+  description       String
+  keySpecs          Json
+  specs             Json
+  images            Json
+  rentalTypes       Json
+  offRoadEligible   Boolean         @default(false)
+  dailyRateOverride Float?
+  destinations      Json
+  featured          Boolean         @default(false)
+  badge             String?
+  bookedRanges      Json?
+  isSample          Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  bookings          BookingRequest[]
+}
+
+model Destination {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  name               String
+  tagline            String
+  image              String
+  gallery            Json
+  description        String
+  experience         String
+  eligibleCategories Json
+  routeInfo          Json
+  offRoad            Boolean  @default(false)
+  extraChargePerDay  Float    @default(0)
+  customQuoteOnly    Boolean  @default(false)
+  confirmed          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model PricingConfig {
+  id                  String   @id @default("default")
+  currencySymbol      String   @default("रु.")
+  baseDailyRates      Json
+  offRoadSurchargePerDay Float  @default(0)
+  discountTiers       Json
+  discountsConfirmed  Boolean  @default(false)
+  durationPresets     Json
+  updatedAt           DateTime @updatedAt
+}
+
+model BookingRequest {
+  id                  String        @id @default(cuid())
+  reference           String        @unique
+  source              BookingSource @default(website)
+  pickupTime          String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  status              BookingStatus @default(new)
+
+  name                String
+  phone               String
+  email               String        @default("")
+
+  vehicleSlug         String
+  vehicle             Vehicle       @relation(fields: [vehicleSlug], references: [slug], onDelete: Restrict)
+
+  startDate           DateTime
+  returnDate          DateTime
+  tripType            TripType
+  destination         String
+  message             String        @default("")
+  days                Int
+
+  estimateStatus      String
+  estimateTotal       Decimal       @db.Decimal(12, 2)
+
+  paymentStatus       PaymentStatus @default(unpaid)
+  payments            Payment[]
+
+  reviewKeyHash       String?
+  reviewKeyExpiresAt  DateTime?
+  review              Review?
+}
+
+model Payment {
+  id                  String        @id @default(cuid())
+  bookingId           String
+  booking             BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  method              PaymentMethod
+  provider            String?
+  amount              Decimal       @db.Decimal(12, 2)
+  transactionReference String?
+  note                String?
+  paidAt              DateTime      @default(now())
+  createdAt           DateTime      @default(now())
+}
+
+model Review {
+  id          String       @id @default(cuid())
+  bookingId   String       @unique
+  booking     BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  vehicleSlug String
+  vehicleName String
+  name        String
+  rating      Int
+  comment     String
+  status      ReviewStatus @default(pending)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

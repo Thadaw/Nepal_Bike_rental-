@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 14% 96%;
+    --foreground: 210 7% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 7% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 7% 9%;
+    --primary: 210 7% 9%;
+    --primary-foreground: 60 14% 96%;
+    --secondary: 60 10% 90%;
+    --secondary-foreground: 210 7% 9%;
+    --muted: 60 10% 92%;
+    --muted-foreground: 0 0% 36%;
+    --accent: 37 33% 56%;
+    --accent-foreground: 210 7% 9%;
+    --destructive: 0 72% 42%;
+    --border: 60 8% 84%;
+    --input: 60 8% 78%;
+    --ring: 37 33% 50%;
+    --radius: 0.875rem;
+  }
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background font-body text-foreground antialiased; }
+  h1, h2, h3, h4 { @apply font-heading tracking-tight; }
+  ::selection { background: #b99a68; color: #151719; }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .text-balance { text-wrap: balance; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Splash screen: a light ray that sweeps left to right across the logo, following its shape and outline. */
+@keyframes splash-ray {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
